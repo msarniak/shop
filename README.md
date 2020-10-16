@@ -35,6 +35,10 @@ To stop the running instance, please use command
  
  ``./gradlew clean``
 
+To remove the docker volume with database data:
+
+``docker volume remove docker_database-data``
+
 # Architecture
 
 Solution consists of two components: database and spring boot app ('microservice').
