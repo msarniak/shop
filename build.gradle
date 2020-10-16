@@ -1,0 +1,66 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+    id 'idea'
+    id 'com.palantir.docker' version '0.25.0'
+    id 'com.palantir.docker-compose' version '0.25.0'
+    //id 'com.palantir.docker-run' version '0.25.0'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+}
+
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+dependencies {
+    ext.lombok_version = '1.18.14'
+
+    // dependencies shared by all modules
+    compile "org.projectlombok:lombok:$lombok_version"
+    annotationProcessor "org.projectlombok:lombok:$lombok_version"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombok_version"
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.13.0'
+
+    implementation "org.springframework.boot:spring-boot"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'org.springdoc:springdoc-openapi-ui:1.4.3'
+    implementation 'org.flywaydb:flyway-core:6.2.2'
+    implementation 'org.postgresql:postgresql:42.2.15'
+
+
+    testCompile 'junit:junit:4.13'
+    testCompile 'org.assertj:assertj-core:3.11.1'
+    testCompile 'org.mockito:mockito-core:2.23.4'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'io.zonky.test:embedded-database-spring-test:1.5.5'
+}
+
+docker {
+    name 'hub.docker.com/msarniak/msarniak-shop:1.0'
+    dockerfile file('docker/Dockerfile')
+    files 'build/libs/msarniak-shop.jar'
+    pull true
+    noCache true
+}
+
+dockerCompose {
+    dockerComposeFile 'docker/docker-compose.yml'
+}
+
+docker.dependsOn bootJar
+dockerComposeUp.dependsOn 'docker'
+
+task start(dependsOn: 'dockerComposeUp')
+
